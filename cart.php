@@ -15,6 +15,7 @@ interface Item {
 
 abstract class CartMethod {
     abstract function connect();
+    abstract function loadAddress();
     abstract function loadItems();
     abstract function loadTotal($code);
     abstract function loadTemplate($args);
@@ -69,23 +70,20 @@ class Service extends ApiMethod {
         $ch = curl_init();
 
         if ($method == 'POST') {
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
-            curl_setopt($ch,CURLOPT_URL, API_URL . $url);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
+            curl_setopt($ch, CURLOPT_URL, API_URL . $url);
         }
         if ($method == 'GET') {
-            if (is_array($params)) {
-                foreach($params as $key => $param) $query[] = $key . '=' . $param;
-            }
-            $url = !empty($query) ? $url . '?' . implode('&', $query) : $url;
+            $url = !empty($params) ? $url . '?' . http_build_query($params) : $url;
             curl_setopt($ch,CURLOPT_URL, API_URL . $url);
         }
 
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json' , $authorization ));
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array( $authorization ));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+
         $result = curl_exec($ch);
+
         curl_close($ch);
 
         return json_decode($result);
@@ -116,6 +114,14 @@ class CartFactory extends CartMethod {
         else throw new Exception('Cannot connect to API Service');
     }
 
+    public function loadAddress() {
+        $result = $this->Service->request('address');
+        if (!empty($result)) {
+            $this->address = $result;
+        }
+        return $this;
+    }
+
     /**
      * [loadItems description]
      * @author vothaianh
@@ -127,6 +133,7 @@ class CartFactory extends CartMethod {
         if (!empty($result->items)) {
             $this->items = $result->items;
         }
+        return $this;
     }
 
     /**
@@ -138,6 +145,41 @@ class CartFactory extends CartMethod {
      */
     public function loadTotal($code = null) {
 
+        $items  = [];
+        $cartId = CART_ID;
+
+        if (empty($code) && !empty($this->address)) {
+            foreach($this->address as $addr) {
+                if ($addr->is_default == 1) $code = $addr->postal_code;
+            }
+        }
+
+        if (!empty($this->items)) {
+            $totalItemCost = 0;
+            foreach($this->items as $item) {
+                $items[] = $item->item_id;
+                $totalItemCost += $item->price;
+            }
+            $this->totalItemCost = $totalItemCost;
+        }
+
+        $params = [
+            'cart_id'       => $cartId,
+            'items'         => $items,
+            'postal_code'   => $code
+        ];
+
+        $results = $this->Service->request('shipping/fee', $params, 'POST');
+
+        if (!empty($results->SFData)) {
+            $totalShippingFee = 0;
+            foreach($results->SFData as $item) {
+                $totalShippingFee += $item->ShippingFee;
+                $deliveredFrom[$item->ItemID] = $item->Location;
+            }
+            $this->deliveredFrom    = $deliveredFrom;
+            $this->totalShippingFee = $totalShippingFee;
+        }
     }
 
     /**
@@ -163,9 +205,13 @@ class CartFactory extends CartMethod {
      */
     public function run() {
 
-        $items = $this->items;
+        $items          = $this->items;
+        $address        = $this->address;
+        $deliveredFrom  = $this->deliveredFrom;
+        $shippingFee    = $this->totalShippingFee;
+        $totalItemCost  = $this->totalItemCost + $shippingFee;
 
-        $this->loadTemplate(compact('items'));
+        $this->loadTemplate(compact('items', 'address', 'shippingFee', 'totalItemCost', 'deliveredFrom'));
 
     }
 
@@ -180,6 +226,6 @@ function test($object) {
 
 $myCart = new CartFactory;
 
-$myCart->connect()->loadItems()->loadTotal();
+$myCart->connect()->loadAddress()->loadItems()->loadTotal();
 
 $myCart->run();
