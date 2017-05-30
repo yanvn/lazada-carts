@@ -1,0 +1,13 @@
+
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="utf-8">
+<title>LAZADA Vietnam™ - Mua Hàng Trực Tuyến Giá Tốt</title>
+<meta name="description" content="Thảnh thơi mua sắm trực tuyến tại Lazada với hàng ngàn sản phẩm từ đồ điện tử, thời trang, đồ gia dụng cho đến thực phẩm... với giá ưu đãi, nhiều khuyến mãi." />
+<meta name="keywords" content="mua hàng trực tuyến, mua hàng online, mua hàng giá rẻ, bán hàng trực tuyến, mua hàng online, lazada việt nam, mua hàng qua mạng, mua bán trực tuyến, mua đồ trên mạng, mua hàng giá rẻ" />
+
+<script src="js/jquery.min.js"></script>
+<link rel="stylesheet" href="css/bootstrap.css">
+<link rel="stylesheet" href="css/style.css">
+</head><body><div class="container cart">    <h1>My shopping Cart</h1>    <div class="row">        <div class="col-md-8">            <div class="row">                <div class="col-md-2"></div>                <div class="col-md-5"></div>                <div class="col-md-3" align="right">ITEM PRICE</div>                <div class="col-md-2">QUANTITY</div>            </div>            <?php foreach($items as $item): ?>            <div class="row gray">                <div class="col-md-2"><img class="product-image" src="<?= $item->image ?>"></div>                <div class="col-md-5"><b><?= $item->item_name ?></b></div>                <div class="col-md-3" align="right"><b><?= $item->price ?> USD</b></div>                <div class="col-md-2">                    <select>                        <option>1</option>                    </select>                </div>            </div>            <?php endforeach; ?>        </div>        <div class="col-md-4">            <div class="row no-margin"><b>Order Summary</b></div>            <div class="row">                <div class="col-md-12 line"></div>                <div class="col-md-8">Delivery Address</div>                <div class="col-md-4">                    <select>                        <option>10000</option>                        <option>10040</option>                    </select>                </div>            </div>            <div class="row">                <div class="col-md-8">Total Shipping Fee</div>                <div class="col-md-4">850 USD</div>            </div>            <div class="row">                <div class="col-md-12 line"></div>                <div class="col-md-8"><b>Total</b> (Total payment amount)</div>                <div class="col-md-4"><b>850 USD</b></div>            </div>            <div class="row">                <div class="col-md-12"><button class="checkout" type="submit">CHECKOUT</button></div>            </div>        </div>    </div></div></body></html>
