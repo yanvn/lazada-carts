@@ -14,6 +14,12 @@ $(function() {
                 $.each(response, function(key, value) {
                     $('#'+key).text(value);
                 });
+
+                if (response.deliveredFrom) {
+                    $.each(response.deliveredFrom, function(item, code) {
+                        $('div[item-id='+item+']').find('.delivered-from').text(code);
+                    });
+                }
                 console.log(response);
             },
             error: function(jqXHR, textStatus, errorThrown) {
