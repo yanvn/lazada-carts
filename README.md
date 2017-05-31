@@ -52,7 +52,7 @@ POST http://localhost:8080/api/shipping/fee (Get the shipping to this delivery c
 		{
 			"name": "Login",
 			"request": {
-				"url": "http://0.0.0.0:8080/api/login",
+				"url": "http://localhost:8080/api/login",
 				"method": "POST",
 				"header": [
 					{
@@ -83,7 +83,7 @@ POST http://localhost:8080/api/shipping/fee (Get the shipping to this delivery c
 		{
 			"name": "Shipping Fee",
 			"request": {
-				"url": "http://0.0.0.0:8080/api/shipping/fee/702000",
+				"url": "http://localhost:8080/api/shipping/fee/702000",
 				"method": "GET",
 				"header": [
 					{
