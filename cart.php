@@ -125,7 +125,9 @@ class CartFactory extends CartMethod {
     public function loadItems() {
         $result = $this->Service->request('cart/' . CART_ID);
         if (!empty($result->items)) {
-            $this->items = $result->items;
+            foreach($result->items as $item) {
+                $this->items[$item->item_id] = $item;
+            }
         }
         return $this;
     }
@@ -168,13 +170,30 @@ class CartFactory extends CartMethod {
         $results = $this->Service->request('shipping/fee', $params, 'POST');
 
         if (!empty($results->SFData)) {
-            $totalShippingFee = 0;
+
+            $totalShippingFee   = 0;
+            $totalExtraFee      = 0;
+
             foreach($results->SFData as $item) {
+
                 $totalShippingFee += $item->ShippingFee;
                 $deliveredFrom[$item->ItemID] = $item->Location;
+
+                $product    = $this->items[$item->ItemID];
+                $flatRate   = $item->ShippingFee;
+                $weight     = $product->weight * $product->quantity;
+
+                if ($weight > 1) {
+                    for($w=1; $w <= $weight - 1; $w++) { }
+                    $totalExtraFee += ($flatRate / 100 * 10) * $w;
+                }
+
             }
+
             $this->deliveredFrom    = $deliveredFrom;
             $this->totalShippingFee = $totalShippingFee;
+            $this->totalExtraFee    = $totalExtraFee;
+
         }
     }
 
@@ -204,8 +223,9 @@ class CartFactory extends CartMethod {
         $items          = !empty($this->items) ? $this->items : [];
         $address        = !empty($this->address) ? $this->address : [];
         $deliveredFrom  = !empty($this->deliveredFrom) ? $this->deliveredFrom : [];
-        $shippingFee    = $this->totalItemCost > 100 ? 0 : $this->totalShippingFee ;
-        $totalItemCost  = number_format($this->totalItemCost + $shippingFee);
+        $extraFee       = !empty($this->totalExtraFee) ? $this->totalExtraFee : 0;
+        $shippingFee    = $this->totalItemCost > 100 ? 0 : $this->totalShippingFee + $extraFee;
+        $totalItemCost  = number_format($this->totalItemCost + $shippingFee, 2);
 
         $response = compact('items', 'address', 'shippingFee', 'totalItemCost', 'deliveredFrom');
 

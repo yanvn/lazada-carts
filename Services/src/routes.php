@@ -109,19 +109,10 @@ $app->post('/api/shipping/fee', function ($request, $response, $args) {
         foreach($sorted as $itemId => $sort) {
 
             $product    = $products[$itemId][$sort];
-            $flatRate   = $product['fee'];
-            $weight     = $product['weight'];
-            $extra      = 0;
-
-            if ($weight > 1) {
-                for($w=1; $w <= $weight - 1; $w++) { }
-                $extra = ($flatRate / 100 * 10) * $w;
-            }
-
             $result[]   = [
                 'ItemID'        => $product['item_id'],
                 'Location'      => $product['source'],
-                'ShippingFee'   => $product['fee'] + $extra
+                'ShippingFee'   => $product['fee']
             ];
 
         }
