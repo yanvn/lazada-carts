@@ -102,6 +102,12 @@ class CartFactory extends CartMethod {
         else throw new Exception('Cannot connect to API Service');
     }
 
+    /**
+     * [loadAddress description]
+     * @author vothaianh
+     * @date   2017-05-31T12:59:42+070
+     * @return [type]                  [description]
+     */
     public function loadAddress() {
         $result = $this->Service->request('address');
         if (!empty($result)) {
