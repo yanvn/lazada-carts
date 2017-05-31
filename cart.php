@@ -156,7 +156,7 @@ class CartFactory extends CartMethod {
             $totalItemCost = 0;
             foreach($this->items as $item) {
                 $items[] = $item->item_id;
-                $totalItemCost += $item->price;
+                $totalItemCost += $item->price * $item->quantity;
             }
             $this->totalItemCost = $totalItemCost;
         }
