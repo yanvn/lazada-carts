@@ -32,8 +32,8 @@ Username and password for API Authencation is located at Services/.env, please c
 
 GET http://localhost:8080/api/ping (it's used to ping the API Service is still alive or not)
 GET http://localhost:8080/api/cart/{cartID} (Get all items in the cart)
-POST http://0.0.0.0:8080/api/login (Authenticaton)
-POST http://0.0.0.0:8080/api/shipping/fee (Get the shipping to this delivery code, the source is located at Service/src/routes.php, line 70)
+POST http://localhost:8080/api/login (Authenticaton)
+POST http://localhost:8080/api/shipping/fee (Get the shipping to this delivery code, the source is located at Service/src/routes.php, line 70)
 
 ```
 
