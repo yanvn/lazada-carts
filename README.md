@@ -12,9 +12,13 @@ My test about the shipping fee
 
 I wrote all the code by my way in this file, please take a moment to check it out, thanks!
 
+## MySQL
+
+Please import lazada.sql to your database.
+
 ## Micro Service:
 
-To run the micro-service API, please follow bellow steps:
+To run the micro-service API, please follow bellow steps: (.env file is located at Service/.env)
 
 ```
 console$: cd Services
