@@ -28,6 +28,8 @@ console$: php -S localhost:8080 -t public public/index.php
 ## RESTfull API
 
 ```
+Username and password for API Authencation is located at Services/.env, please check it out!
+
 GET http://localhost:8080/api/ping (it's used to ping the API Service is still alive or not)
 GET http://localhost:8080/api/cart/{cartID} (Get all items in the cart)
 POST http://0.0.0.0:8080/api/login (Authenticaton)
