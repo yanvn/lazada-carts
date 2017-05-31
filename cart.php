@@ -8,48 +8,18 @@ define('API_TOKEN', 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImFkbW
 error_reporting(E_ALL);
 ini_set('display_errors', 'On');
 
-interface Item {
-    public function add($args);
-    public function get($title);
-}
-
 abstract class CartMethod {
     abstract function connect();
     abstract function loadAddress();
     abstract function loadItems();
-    abstract function loadTotal($code);
+    abstract function loadTotal();
     abstract function loadTemplate($args);
     abstract function run();
 }
 
 abstract class ApiMethod {
+    abstract function get($param);
     abstract function request($url, $params, $method);
-}
-
-class Cart implements Item {
-
-    /**
-     * [add description]
-     * @author vothaianh
-     * @date   2017-05-30T16:26:19+070
-     * @param  array                   $args [description]
-     */
-    public function add($args = []) {
-        foreach($args as $key => $value) {
-            $this->$key = $value;
-        }
-    }
-
-    /**
-     * [get description]
-     * @author vothaianh
-     * @date   2017-05-30T16:26:22+070
-     * @param  [type]                  $title [description]
-     * @return [type]                         [description]
-     */
-    public function get($title) {
-        return $this->$title;
-    }
 }
 
 class Service extends ApiMethod {
@@ -89,6 +59,18 @@ class Service extends ApiMethod {
         return json_decode($result);
     }
 
+    /**
+     * [get description]
+     * @author vothaianh
+     * @date   2017-05-31T11:06:59+070
+     * @param  [type]                  $param [description]
+     * @return [type]                         [description]
+     */
+    public function get($param = null) {
+        if (!empty($_GET[$param])) return $_GET[$param];
+        if (empty($param)) return $_GET;
+    }
+
 }
 
 class CartFactory extends CartMethod {
@@ -100,6 +82,12 @@ class CartFactory extends CartMethod {
      */
     public function __construct() {
         $this->Service = new Service;
+    }
+
+    public function handler() {
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
+            $this->isAjax = true;
+        }
     }
 
     /**
@@ -143,10 +131,12 @@ class CartFactory extends CartMethod {
      * @param  [type]                  $code [Postal Code]
      * @return [type]                        [description]
      */
-    public function loadTotal($code = null) {
+    public function loadTotal() {
 
         $items  = [];
         $cartId = CART_ID;
+
+        if (!empty($this->isAjax)) $code = $this->Service->get('code');
 
         if (empty($code) && !empty($this->address)) {
             foreach($this->address as $addr) {
@@ -205,13 +195,20 @@ class CartFactory extends CartMethod {
      */
     public function run() {
 
-        $items          = $this->items;
-        $address        = $this->address;
-        $deliveredFrom  = $this->deliveredFrom;
-        $shippingFee    = $this->totalShippingFee;
-        $totalItemCost  = $this->totalItemCost + $shippingFee;
+        $items          = !empty($this->items) ? $this->items : [];
+        $address        = !empty($this->address) ? $this->address : [];
+        $deliveredFrom  = !empty($this->deliveredFrom) ? $this->deliveredFrom : [];
+        $shippingFee    = $this->totalItemCost > 100 ? 0 : $this->totalShippingFee ;
+        $totalItemCost  = number_format($this->totalItemCost + $shippingFee);
 
-        $this->loadTemplate(compact('items', 'address', 'shippingFee', 'totalItemCost', 'deliveredFrom'));
+        $response = compact('items', 'address', 'shippingFee', 'totalItemCost', 'deliveredFrom');
+
+        if (!empty($this->isAjax)) {
+            header('Content-Type: application/json');
+            echo json_encode($response);
+            exit;
+        }
+        else $this->loadTemplate($response);
 
     }
 
@@ -225,6 +222,8 @@ function test($object) {
 
 
 $myCart = new CartFactory;
+
+$myCart->handler();
 
 $myCart->connect()->loadAddress()->loadItems()->loadTotal();
 

@@ -28,7 +28,7 @@ $app->get('/api/address', function ($request, $response, $args) {
     $stmt = $this->db->prepare("SELECT * FROM address");
     $stmt->execute();
 
-    $data = $stmt->fetchAll(); 
+    $data = $stmt->fetchAll();
 
     return $response->withJson($data);
 });
@@ -105,13 +105,25 @@ $app->post('/api/shipping/fee', function ($request, $response, $args) {
             $sorted[$itemId] = $supplier;
         }
 
+
         foreach($sorted as $itemId => $sort) {
-            $product = $products[$itemId][$sort];
-            $result[] = [
+
+            $product    = $products[$itemId][$sort];
+            $flatRate   = $product['fee'];
+            $weight     = $product['weight'];
+            $extra      = 0;
+
+            if ($weight > 1) {
+                for($w=1; $w <= $weight - 1; $w++) { }
+                $extra = ($flatRate / 100 * 10) * $w;
+            }
+
+            $result[]   = [
                 'ItemID'        => $product['item_id'],
                 'Location'      => $product['source'],
-                'ShippingFee'   => $product['fee']
+                'ShippingFee'   => $product['fee'] + $extra
             ];
+
         }
     }
 
