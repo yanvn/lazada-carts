@@ -28,10 +28,10 @@ console$: php -S localhost:8080 -t public public/index.php
 ## RESTfull API
 
 ```
-http://localhost:8080/api/ping (it's used to ping the API Service is still alive or not)
-http://0.0.0.0:8080/api/login (Authenticaton)
-http://localhost:8080/api/cart/{cartID} (Get all items in the cart)
-http://0.0.0.0:8080/api/shipping/fee/{postalCode} (Get the shipping to this delivery code, the source is located at Service/src/routes.php, line 70)
+GET http://localhost:8080/api/ping (it's used to ping the API Service is still alive or not)
+GET http://localhost:8080/api/cart/{cartID} (Get all items in the cart)
+POST http://0.0.0.0:8080/api/login (Authenticaton)
+POST http://0.0.0.0:8080/api/shipping/fee (Get the shipping to this delivery code, the source is located at Service/src/routes.php, line 70)
 
 ```
 
